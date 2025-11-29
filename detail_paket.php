@@ -7,6 +7,7 @@ if (!isset($_SESSION['status'])) { header("location:login.php"); exit; }
 
 $id_paket = $_GET['id'];
 $id_user = $_SESSION['id_user'];
+$nama_user = $_SESSION['nama']; // Ambil nama untuk Navbar
 
 // Ambil Detail Paket
 $query_paket = mysqli_query($koneksi, "
@@ -38,6 +39,32 @@ $gratis = ($data['harga'] == 0);
 </head>
 <body class="bg-light">
     
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top shadow-sm">
+      <div class="container">
+        <a class="navbar-brand fw-bold" href="index.php">🎓 TryoutOnline</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item"><a class="nav-link" href="index.php">Dashboard</a></li>
+            <li class="nav-item"><a class="nav-link active" href="daftar_paket.php">Daftar Tryout</a></li>
+            
+            <li class="nav-item dropdown ms-2">
+                <a class="nav-link dropdown-toggle text-white fw-bold" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                    Hi, <?= $nama_user ?>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="profil.php">👤 Profil Saya</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item text-danger" href="logout.php">🚪 Logout</a></li>
+                </ul>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
     <div class="container mt-5 mb-5">
         <div class="row justify-content-center">
             <div class="col-md-8">
