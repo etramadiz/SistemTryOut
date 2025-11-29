@@ -71,12 +71,6 @@ if (isset($_POST['login'])) {
         <div class="text-center mt-3">
             <small class="text-muted">Belum punya akun? <a href="register.php" class="text-decoration-none fw-bold">Daftar disini</a></small>
         </div>
-        
-        <div class="alert alert-info mt-3 small">
-            <strong>Info Login (Sesuai DB):</strong><br>
-            Email: budi@gmail.com<br>
-            Pass: hash_rahasia_budi
-        </div>
     </div>
 </body>
 </html>

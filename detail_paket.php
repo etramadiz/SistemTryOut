@@ -98,7 +98,7 @@ $gratis = ($data['harga'] == 0);
                                 <div class="alert alert-warning text-center">
                                     Paket ini berbayar. Silakan beli terlebih dahulu untuk mengakses soal.
                                 </div>
-                                <a href="proses_beli.php?id=<?= $data['id_paket'] ?>" class="btn btn-success btn-lg fw-bold" onclick="return confirm('Beli paket ini seharga Rp <?= number_format($data['harga']) ?>? Saldo akan terpotong (Simulasi).')">🛒 Beli Paket Ini</a>
+                                <a href="pembayaran.php?id=<?= $data['id_paket'] ?>" class="btn btn-success btn-lg fw-bold">🛒 Beli Paket Ini</a>
                             <?php endif; ?>
                         </div>
                         
