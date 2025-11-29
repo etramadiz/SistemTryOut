@@ -1,5 +1,6 @@
 <?php 
 include 'koneksi.php';
+session_start();
 
 // Ambil ID paket dari URL
 $id_paket = $_GET['id'];

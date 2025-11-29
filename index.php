@@ -1,16 +1,21 @@
 <?php
+session_start();
 include 'koneksi.php';
 
-// --- SIMULASI LOGIN ---
-// Ceritanya user sudah login. Kita pakai ID 2 (Budi Santoso) dari database kamu.
-$id_user_login = 2; 
+// --- LOGIKA LOGIN (FITUR BARU) ---
+// Cek apakah user sudah login. Jika belum, tendang ke login.php
+if (!isset($_SESSION['status']) || $_SESSION['status'] != "login") {
+    header("location:login.php?pesan=belum_login");
+    die();
+}
 
-// Ambil data user
-$query_user = mysqli_query($koneksi, "SELECT * FROM user WHERE id_user = '$id_user_login'");
-$user = mysqli_fetch_assoc($query_user);
+// Ambil ID dari Session (Bukan Simulasi lagi)
+$id_user = $_SESSION['id_user'];
+$nama_user = $_SESSION['nama'];
+$role = $_SESSION['role'];
 
-// Hitung statistik user dari tabel percobaan_tryout
-$query_history = mysqli_query($koneksi, "SELECT COUNT(*) as total_tryout, SUM(skor_total) as total_skor FROM percobaan_tryout WHERE id_user = '$id_user_login' AND status_pengerjaan='SELESAI'");
+// --- HITUNG STATISTIK (LOGIKA LAMA DENGAN ID BARU) ---
+$query_history = mysqli_query($koneksi, "SELECT COUNT(*) as total_tryout, SUM(skor_total) as total_skor FROM percobaan_tryout WHERE id_user = '$id_user' AND status_pengerjaan='SELESAI'");
 $stats = mysqli_fetch_assoc($query_history);
 $rata_rata = ($stats['total_tryout'] > 0) ? round($stats['total_skor'] / $stats['total_tryout'], 1) : 0;
 ?>
@@ -23,6 +28,7 @@ $rata_rata = ($stats['total_tryout'] > 0) ? round($stats['total_skor'] / $stats[
     <title>Dashboard - Sistem Tryout</title>
     <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
     <style>
+        /* Gaya CSS Lama yang Anda sukai */
         .hero-section { background: linear-gradient(135deg, #0d6efd 0%, #0099ff 100%); color: white; border-radius: 15px; }
         .stat-card { transition: transform 0.2s; border: none; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .stat-card:hover { transform: translateY(-5px); }
@@ -39,9 +45,24 @@ $rata_rata = ($stats['total_tryout'] > 0) ? round($stats['total_skor'] / $stats[
         <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="navbar-nav ms-auto">
             <li class="nav-item"><a class="nav-link active" href="index.php">Dashboard</a></li>
-            <li class="nav-item"><a class="nav-link" href="daftar_paket.php">Daftar Tryout</a></li>
-            <li class="nav-item"><a class="nav-link" href="#">Riwayat</a></li>
-            <li class="nav-item ms-2"><span class="nav-link text-white fw-bold">Hi, <?= $user['nama_lengkap'] ?></span></li>
+            
+            <?php if($role == 'peserta'): ?>
+                <li class="nav-item"><a class="nav-link" href="daftar_paket.php">Daftar Tryout</a></li>
+                <li class="nav-item"><a class="nav-link" href="riwayat.php">Riwayat</a></li>
+            <?php endif; ?>
+
+            <?php if($role == 'admin'): ?>
+                <li class="nav-item"><a class="nav-link bg-warning text-dark rounded px-3 mx-2" href="data_user.php">Kelola User</a></li>
+            <?php endif; ?>
+
+            <li class="nav-item dropdown ms-2">
+                <a class="nav-link dropdown-toggle text-white fw-bold" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                    Hi, <?= $nama_user ?>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item text-danger" href="logout.php">Logout / Keluar</a></li>
+                </ul>
+            </li>
           </ul>
         </div>
       </div>
@@ -78,7 +99,7 @@ $rata_rata = ($stats['total_tryout'] > 0) ? round($stats['total_skor'] / $stats[
                 <div class="card stat-card bg-white p-3">
                     <div class="card-body">
                         <h6 class="text-muted">Status Akun</h6>
-                        <h2 class="fw-bold text-warning"><?= ucfirst($user['role']) ?></h2>
+                        <h2 class="fw-bold text-warning"><?= ucfirst($role) ?></h2>
                     </div>
                 </div>
             </div>
@@ -98,11 +119,12 @@ $rata_rata = ($stats['total_tryout'] > 0) ? round($stats['total_skor'] / $stats[
                     </thead>
                     <tbody>
                         <?php
+                        // Menggunakan $id_user dari session login
                         $query_aktivitas = mysqli_query($koneksi, "
                             SELECT pt.waktu_mulai, pt.skor_total, pt.status_pengerjaan, p.nama_paket 
                             FROM percobaan_tryout pt 
                             JOIN paket_tryout p ON pt.id_paket = p.id_paket
-                            WHERE pt.id_user = '$id_user_login'
+                            WHERE pt.id_user = '$id_user'
                             ORDER BY pt.waktu_mulai DESC LIMIT 5
                         ");
 
