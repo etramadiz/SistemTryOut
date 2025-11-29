@@ -69,7 +69,7 @@ if (isset($_POST['login'])) {
         </form>
         
         <div class="text-center mt-3">
-            <small class="text-muted">Belum punya akun? Hubungi Admin.</small>
+            <small class="text-muted">Belum punya akun? <a href="register.php" class="text-decoration-none fw-bold">Daftar disini</a></small>
         </div>
         
         <div class="alert alert-info mt-3 small">
