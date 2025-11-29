@@ -1,11 +1,8 @@
-<<<<<<< HEAD
-=======
 <?php 
 session_start();
 include 'koneksi.php';
-session_start();
 
-// Cek Login
+// --- 1. CEK LOGIN ---
 if (!isset($_SESSION['status']) || $_SESSION['status'] != "login") {
     header("location:login.php?pesan=belum_login");
     die();
@@ -16,7 +13,7 @@ $id_user = $_SESSION['id_user'];
 $nama_user = $_SESSION['nama'];
 $role = $_SESSION['role'];
 
-// Ambil Detail Paket
+// --- 2. AMBIL DATA PAKET ---
 $query_paket = mysqli_query($koneksi, "
     SELECT p.*, k.nama_kategori 
     FROM paket_tryout p 
@@ -28,13 +25,18 @@ $data = mysqli_fetch_assoc($query_paket);
 // Hitung Jumlah Soal
 $jml_soal = mysqli_fetch_assoc(mysqli_query($koneksi, "SELECT COUNT(*) as jumlah FROM paket_soal WHERE id_paket = '$id_paket'"));
 
-// --- LOGIKA CEK BELI ---
-// Cek apakah user sudah pernah beli/transaksi paket ini yang statusnya SUCCESS
+// --- 3. LOGIKA CEK AKSES ---
+// Cek apakah user sudah beli? (Jika ada tabel transaksi)
 $cek_beli = mysqli_query($koneksi, "SELECT * FROM transaksi WHERE id_user='$id_user' AND id_paket='$id_paket' AND status_transaksi='SUCCESS'");
 $sudah_beli = mysqli_num_rows($cek_beli) > 0;
 
-// Cek apakah paketnya gratis
+// Paket Gratis?
 $gratis = ($data['harga'] == 0);
+
+// Admin boleh akses semua paket
+if ($role == 'admin') {
+    $sudah_beli = true; 
+}
 ?>
 
 <!DOCTYPE html>
@@ -51,6 +53,7 @@ $gratis = ($data['harga'] == 0);
         .stat-box { background-color: #f8f9fa; border-radius: 10px; padding: 15px; text-align: center; height: 100%; transition: 0.3s; }
         .stat-box:hover { background-color: #e9ecef; transform: translateY(-3px); }
         .stat-icon { font-size: 1.5rem; color: #0d6efd; margin-bottom: 5px; }
+        .hover-underline:hover { text-decoration: underline !important; }
     </style>
 </head>
 <body class="bg-light">
@@ -71,11 +74,14 @@ $gratis = ($data['harga'] == 0);
             <?php endif; ?>
 
             <?php if($role == 'admin'): ?>
-                <li class="nav-item"><a class="nav-link" href="data_user.php">Kelola User</a></li>
+                <li class="nav-item"><a class="nav-link" href="admin_paket.php">Kelola Paket</a></li>
+                <li class="nav-item"><a class="nav-link" href="admin_materi.php">Materi Belajar</a></li>
+                <li class="nav-item"><a class="nav-link" href="laporan.php">Laporan</a></li>
+                <li class="nav-item"><a class="nav-link bg-warning text-dark rounded px-3 mx-2 fw-bold" href="data_user.php">Kelola User</a></li>
             <?php endif; ?>
 
             <li class="nav-item dropdown ms-2">
-                <a class="nav-link dropdown-toggle text-white fw-bold" href="#" data-bs-toggle="dropdown">
+                <a class="nav-link dropdown-toggle text-white fw-bold" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
                     Hi, <?= explode(' ', $nama_user)[0] ?>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end">
@@ -136,7 +142,7 @@ $gratis = ($data['harga'] == 0);
 
                         <div class="d-grid gap-2 col-md-8 mx-auto">
                             <?php if ($sudah_beli || $gratis): ?>
-                                <a href="ujian.php?id=<?= $data['id_paket'] ?>" class="btn btn-primary btn-lg fw-bold shadow-sm py-3">
+                                <a href="ujian_mulai.php?id=<?= $data['id_paket'] ?>" class="btn btn-primary btn-lg fw-bold shadow-sm py-3">
                                     <i class="bi bi-rocket-takeoff me-2"></i> Mulai Kerjakan Sekarang
                                 </a>
                             <?php else: ?>
@@ -162,4 +168,3 @@ $gratis = ($data['harga'] == 0);
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
->>>>>>> 0b68867373fe0d10e213f7334de3ca0ee8096945
