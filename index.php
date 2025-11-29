@@ -40,15 +40,21 @@ if ($role == 'admin') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Sistem Tryout</title>
     <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+    <!-- Icon Bootstrap (Opsional, untuk ikon panah link) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <style>
         .stat-card { transition: transform 0.2s; border: none; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .stat-card:hover { transform: translateY(-5px); }
         .hover-scale { transition: transform 0.2s; }
         .hover-scale:hover { transform: scale(1.05); }
+        /* Style Link Tabel (Fitur Teman) */
+        .link-paket { text-decoration: none; font-weight: bold; color: #0d6efd; }
+        .link-paket:hover { text-decoration: underline; color: #0a58ca; }
     </style>
 </head>
 <body class="bg-light">
 
+    <!-- NAVBAR -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top shadow-sm">
       <div class="container">
         <a class="navbar-brand fw-bold" href="index.php">🎓 TryoutOnline</a>
@@ -76,7 +82,10 @@ if ($role == 'admin') {
                     Hi, <?= $nama_user ?>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end">
-                    <li><a class="dropdown-item text-danger" href="logout.php">Logout / Keluar</a></li>
+                    <!-- Fitur Tambahan dari Teman: Profil -->
+                    <li><a class="dropdown-item" href="profil.php">👤 Profil Saya</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item text-danger" href="logout.php">🚪 Logout</a></li>
                 </ul>
             </li>
           </ul>
@@ -86,9 +95,11 @@ if ($role == 'admin') {
 
     <div class="container mt-4">
         
+        <!-- HERO SECTION PREMIUM (Punya Kamu - Lebih Bagus) -->
         <div class="p-5 mb-5 rounded-3 shadow-lg text-white" 
              style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); position: relative; overflow: hidden;">
             
+            <!-- Hiasan Background -->
             <div style="position: absolute; top: -50px; right: -50px; width: 200px; height: 200px; background: rgba(255,255,255,0.1); border-radius: 50%;"></div>
             <div style="position: absolute; bottom: -50px; left: -20px; width: 150px; height: 150px; background: rgba(255,255,255,0.05); border-radius: 50%;"></div>
 
@@ -101,26 +112,22 @@ if ($role == 'admin') {
                                 Pantau aktivitas peserta, kelola bank soal, dan distribusikan materi belajar.
                             </p>
                             
+                            <!-- TOMBOL MENU UTAMA -->
                             <div class="d-flex flex-wrap">
-                                
-                                <a href="data_user.php" class="btn btn-light btn-lg px-4 py-3 fw-bold shadow-sm d-flex align-items-center mb-3" 
-                                   style="margin-right: 15px;">
+                                <a href="data_user.php" class="btn btn-light btn-lg px-4 py-3 fw-bold shadow-sm d-flex align-items-center mb-3" style="margin-right: 15px;">
                                     <span class="fs-4 me-2">👥</span> 
                                     <div class="text-start">
                                         <div class="small text-muted" style="font-size: 0.7rem; line-height: 1;">KELOLA</div>
                                         Data User
                                     </div>
                                 </a>
-
-                                <a href="admin_materi.php" class="btn btn-light btn-lg px-4 py-3 fw-bold shadow-sm d-flex align-items-center mb-3" 
-                                   style="margin-right: 15px;">
+                                <a href="admin_materi.php" class="btn btn-light btn-lg px-4 py-3 fw-bold shadow-sm d-flex align-items-center mb-3" style="margin-right: 15px;">
                                     <span class="fs-4 me-2">📚</span>
                                     <div class="text-start">
                                         <div class="small text-muted" style="font-size: 0.7rem; line-height: 1;">UPLOAD</div>
                                         Materi
                                     </div>
                                 </a>
-
                                 <a href="admin_paket.php" class="btn btn-warning btn-lg px-4 py-3 fw-bold shadow-sm d-flex align-items-center text-dark mb-3">
                                     <span class="fs-4 me-2">📦</span>
                                     <div class="text-start">
@@ -128,16 +135,15 @@ if ($role == 'admin') {
                                         Paket Soal
                                     </div>
                                 </a>
-
                             </div>
                         </div>
-                        
                         <div class="col-md-4 d-none d-md-block text-center opacity-75">
                             <h1 style="font-size: 8rem;">⚙️</h1>
                         </div>
                     </div>
 
                 <?php else: ?>
+                    <!-- TAMPILAN PESERTA -->
                     <div class="text-center">
                         <h1 class="display-4 fw-bold">🚀 Siap Mengejar Mimpi?</h1>
                         <p class="col-md-8 fs-4 mx-auto text-white-50 mb-4">
@@ -151,12 +157,14 @@ if ($role == 'admin') {
             </div>
         </div>
 
+        <!-- STATISTIK SECTION (Gabungan) -->
         <h4 class="mb-3 fw-bold text-secondary">
             <?= ($role == 'admin') ? '📊 Ringkasan Sistem' : '📊 Statistik Kamu' ?>
         </h4>
         
         <div class="row mb-5">
             <?php if($role == 'admin'): ?>
+                <!-- STATS ADMIN -->
                 <div class="col-md-4">
                     <div class="card stat-card bg-white p-3">
                         <div class="card-body">
@@ -183,6 +191,7 @@ if ($role == 'admin') {
                 </div>
 
             <?php else: ?>
+                <!-- STATS PESERTA (Punya Temanmu) -->
                 <div class="col-md-4">
                     <div class="card stat-card bg-white p-3">
                         <div class="card-body">
@@ -210,6 +219,7 @@ if ($role == 'admin') {
             <?php endif; ?>
         </div>
 
+        <!-- TABEL AKTIVITAS TERAKHIR (Merged Logic) -->
         <h4 class="mb-3 fw-bold text-secondary">
             <?= ($role == 'admin') ? '⏳ Aktivitas User Terbaru' : '📜 Riwayat Terakhir Kamu' ?>
         </h4>
@@ -228,6 +238,7 @@ if ($role == 'admin') {
                     <tbody>
                         <?php
                         if ($role == 'admin') {
+                            // Query Admin: Ambil dari semua user
                             $query_aktivitas = mysqli_query($koneksi, "
                                 SELECT pt.waktu_mulai, pt.skor_total, pt.status_pengerjaan, 
                                        p.nama_paket, u.nama_lengkap 
@@ -237,8 +248,10 @@ if ($role == 'admin') {
                                 ORDER BY pt.waktu_mulai DESC LIMIT 5
                             ");
                         } else {
+                            // Query Peserta: Ambil ID Paket & ID Percobaan juga (untuk fitur Link Teman)
                             $query_aktivitas = mysqli_query($koneksi, "
-                                SELECT pt.waktu_mulai, pt.skor_total, pt.status_pengerjaan, p.nama_paket 
+                                SELECT pt.id_percobaan, pt.waktu_mulai, pt.skor_total, pt.status_pengerjaan, 
+                                       p.nama_paket, p.id_paket
                                 FROM percobaan_tryout pt 
                                 JOIN paket_tryout p ON pt.id_paket = p.id_paket
                                 WHERE pt.id_user = '$id_user'
@@ -251,6 +264,16 @@ if ($role == 'admin') {
                                 $badge = ($row['status_pengerjaan'] == 'SELESAI') ? 'bg-success' : 'bg-warning text-dark';
                                 $tanggal = date('d M Y, H:i', strtotime($row['waktu_mulai']));
                                 
+                                // LOGIKA LINK CERDAS (Fitur Teman, Diadaptasi)
+                                $nama_paket_display = $row['nama_paket'];
+                                
+                                // Hanya peserta yang bisa klik link untuk lanjut mengerjakan
+                                if($role == 'peserta' && $row['status_pengerjaan'] == 'SEDANG MENGERJAKAN') {
+                                    $nama_paket_display = "<a href='ujian_kerjakan.php?id={$row['id_percobaan']}' class='link-paket' title='Lanjut Mengerjakan'>
+                                        {$row['nama_paket']} <i class='bi bi-arrow-right-circle-fill text-warning'></i>
+                                    </a>";
+                                }
+
                                 echo "<tr>
                                     <td class='text-muted'>{$tanggal}</td>";
                                 
@@ -258,7 +281,7 @@ if ($role == 'admin') {
                                     echo "<td class='fw-bold'>".htmlspecialchars($row['nama_lengkap'])."</td>";
                                 }
 
-                                echo "<td>{$row['nama_paket']}</td>
+                                echo "<td>{$nama_paket_display}</td>
                                     <td><span class='badge $badge rounded-pill'>{$row['status_pengerjaan']}</span></td>
                                     <td class='fw-bold text-primary'>{$row['skor_total']}</td>
                                 </tr>";
