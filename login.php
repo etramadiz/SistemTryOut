@@ -3,8 +3,8 @@ session_start();
 include 'koneksi.php';
 
 if (isset($_POST['login'])) {
-    $email = $_POST['email'];
-    $password = $_POST['password'];
+    $email = mysqli_real_escape_string($koneksi, $_POST['email']);
+    $password = mysqli_real_escape_string($koneksi, $_POST['password']);
 
     // Cek user di database
     $query = mysqli_query($koneksi, "SELECT * FROM user WHERE email = '$email'");
