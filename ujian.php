@@ -1,0 +1,58 @@
+<?php
+session_start();
+include 'koneksi.php';
+if ($_SESSION['status'] != "login") { header("location:login.php"); exit; }
+
+$id_paket = $_GET['id'];
+
+// Ambil Info Paket
+$paket = mysqli_fetch_assoc(mysqli_query($koneksi, "SELECT * FROM paket_tryout WHERE id_paket='$id_paket'"));
+
+// Ambil Soal-soal
+$q_soal = mysqli_query($koneksi, "SELECT s.* FROM paket_soal ps JOIN soal s ON ps.id_soal = s.id_soal WHERE ps.id_paket='$id_paket'");
+?>
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <title>Ujian - <?= $paket['nama_paket'] ?></title>
+    <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+</head>
+<body class="bg-light">
+    <div class="container mt-4 mb-5">
+        <h3 class="fw-bold text-primary"><?= $paket['nama_paket'] ?></h3>
+        <div class="alert alert-info">Waktu pengerjaan: <?= $paket['durasi_menit'] ?> Menit. Jangan refresh halaman!</div>
+        
+        <form action="submit_ujian.php" method="POST">
+            <input type="hidden" name="id_paket" value="<?= $id_paket ?>">
+            
+            <?php $no = 1; while($soal = mysqli_fetch_assoc($q_soal)): ?>
+                <div class="card mb-3 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">Soal No. <?= $no++ ?></h5>
+                        <p class="card-text fs-5"><?= $soal['pertanyaan'] ?></p>
+                        
+                        <div class="list-group">
+                            <?php 
+                            $opsi = ['A', 'B', 'C', 'D', 'E'];
+                            foreach($opsi as $pil): 
+                                $teks_opsi = $soal['opsi_'.strtolower($pil)];
+                                if(!empty($teks_opsi)):
+                            ?>
+                            <label class="list-group-item">
+                                <input class="form-check-input me-1" type="radio" name="jawaban[<?= $soal['id_soal'] ?>]" value="<?= $pil ?>">
+                                <strong><?= $pil ?>.</strong> <?= $teks_opsi ?>
+                            </label>
+                            <?php endif; endforeach; ?>
+                        </div>
+                    </div>
+                </div>
+            <?php endwhile; ?>
+
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-primary btn-lg" onclick="return confirm('Yakin ingin mengumpulkan jawaban?')">Kirim Jawaban & Selesai</button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

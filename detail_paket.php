@@ -1,8 +1,12 @@
 <?php 
+session_start();
 include 'koneksi.php';
 
-// Ambil ID paket dari URL
+// Cek Login
+if (!isset($_SESSION['status'])) { header("location:login.php"); exit; }
+
 $id_paket = $_GET['id'];
+$id_user = $_SESSION['id_user'];
 
 // Ambil Detail Paket
 $query_paket = mysqli_query($koneksi, "
@@ -13,9 +17,16 @@ $query_paket = mysqli_query($koneksi, "
 ");
 $data = mysqli_fetch_assoc($query_paket);
 
-// Hitung Jumlah Soal di paket ini
-$query_jumlah_soal = mysqli_query($koneksi, "SELECT COUNT(*) as jumlah FROM paket_soal WHERE id_paket = '$id_paket'");
-$jml_soal = mysqli_fetch_assoc($query_jumlah_soal);
+// Hitung Jumlah Soal
+$jml_soal = mysqli_fetch_assoc(mysqli_query($koneksi, "SELECT COUNT(*) as jumlah FROM paket_soal WHERE id_paket = '$id_paket'"));
+
+// --- LOGIKA CEK BELI ---
+// Cek apakah user sudah pernah beli/transaksi paket ini yang statusnya SUCCESS
+$cek_beli = mysqli_query($koneksi, "SELECT * FROM transaksi WHERE id_user='$id_user' AND id_paket='$id_paket' AND status_transaksi='SUCCESS'");
+$sudah_beli = mysqli_num_rows($cek_beli) > 0;
+
+// Cek apakah paketnya gratis
+$gratis = ($data['harga'] == 0);
 ?>
 
 <!DOCTYPE html>
@@ -27,7 +38,7 @@ $jml_soal = mysqli_fetch_assoc($query_jumlah_soal);
 </head>
 <body class="bg-light">
     
-    <div class="container mt-5">
+    <div class="container mt-5 mb-5">
         <div class="row justify-content-center">
             <div class="col-md-8">
                 <a href="daftar_paket.php" class="text-decoration-none mb-3 d-block">← Kembali ke Daftar</a>
@@ -53,17 +64,19 @@ $jml_soal = mysqli_fetch_assoc($query_jumlah_soal);
                             </div>
                         </div>
 
-                        <?php if($data['harga'] > 0): ?>
-                             <button class="btn btn-warning btn-lg w-100 text-white fw-bold mb-2">Beli Paket Ini</button>
-                        <?php else: ?>
-                             <a href="ujian_mulai.php?id=<?= $data['id_paket'] ?>" class="btn btn-primary btn-lg w-100 fw-bold">Mulai Kerjakan Sekarang</a>
-                        <?php endif; ?>
+                        <div class="d-grid gap-2">
+                            <?php if ($sudah_beli || $gratis): ?>
+                                <a href="ujian.php?id=<?= $data['id_paket'] ?>" class="btn btn-primary btn-lg fw-bold">🚀 Mulai Kerjakan Sekarang</a>
+                            <?php else: ?>
+                                <div class="alert alert-warning text-center">
+                                    Paket ini berbayar. Silakan beli terlebih dahulu untuk mengakses soal.
+                                </div>
+                                <a href="proses_beli.php?id=<?= $data['id_paket'] ?>" class="btn btn-success btn-lg fw-bold" onclick="return confirm('Beli paket ini seharga Rp <?= number_format($data['harga']) ?>? Saldo akan terpotong (Simulasi).')">🛒 Beli Paket Ini</a>
+                            <?php endif; ?>
+                        </div>
                         
-                        <div class="alert alert-info mt-3 text-start small">
-                            <strong>Perhatian:</strong><br>
-                            - Pastikan koneksi internet lancar.<br>
-                            - Waktu akan berjalan otomatis saat tombol "Mulai" ditekan.<br>
-                            - Dilarang membuka tab lain (Simulasi).
+                        <div class="mt-4">
+                            <a href="diskusi.php?id=<?= $data['id_paket'] ?>" class="btn btn-outline-secondary btn-sm">💬 Lihat Diskusi Soal Paket Ini</a>
                         </div>
 
                     </div>

@@ -54,12 +54,13 @@ $rata_rata = ($stats['total_tryout'] > 0) ? round($stats['total_skor'] / $stats[
             <?php if($role == 'admin'): ?>
                 <li class="nav-item"><a class="nav-link bg-warning text-dark rounded px-3 mx-2" href="data_user.php">Kelola User</a></li>
             <?php endif; ?>
-
             <li class="nav-item dropdown ms-2">
                 <a class="nav-link dropdown-toggle text-white fw-bold" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
-                    Hi, <?= $nama_user ?>
+                    Hi, <?= $_SESSION['nama'] ?>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="profil.php">👤 Profil Saya</a></li>
+                    <li><hr class="dropdown-divider"></li>
                     <li><a class="dropdown-item text-danger" href="logout.php">Logout / Keluar</a></li>
                 </ul>
             </li>
