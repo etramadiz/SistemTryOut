@@ -2,40 +2,33 @@
 session_start();
 include 'koneksi.php';
 
-// --- CEK LOGIN ---
+// --- 1. CEK LOGIN ---
 if (!isset($_SESSION['status']) || $_SESSION['status'] != "login") {
     header("location:login.php?pesan=belum_login");
     die();
 }
 
-// Ambil Data Session
 $id_user = $_SESSION['id_user'];
 $nama_user = $_SESSION['nama'];
 $role = $_SESSION['role'];
 
-// --- LOGIKA STATISTIK BERDASARKAN ROLE ---
+// --- 2. HITUNG STATISTIK ---
 if ($role == 'admin') {
-    // 1. Hitung Total Peserta (Selain Admin)
-    $query_user = mysqli_query($koneksi, "SELECT COUNT(*) as total FROM user WHERE role='peserta'");
-    $data_user = mysqli_fetch_assoc($query_user);
-    $total_peserta = $data_user['total'];
+    // Statistik Admin
+    $stats_user = mysqli_fetch_assoc(mysqli_query($koneksi, "SELECT COUNT(*) as total FROM user WHERE role='peserta'"));
+    $total_peserta = $stats_user['total'];
 
-    // 2. Hitung Total Paket Soal
-    $query_paket = mysqli_query($koneksi, "SELECT COUNT(*) as total FROM paket_tryout");
-    $data_paket = mysqli_fetch_assoc($query_paket);
-    $total_paket = $data_paket['total'];
+    $stats_paket = mysqli_fetch_assoc(mysqli_query($koneksi, "SELECT COUNT(*) as total FROM paket_tryout"));
+    $total_paket = $stats_paket['total'];
 
-    // 3. Hitung Total Tryout yang Telah Dikerjakan (Oleh semua user)
-    $query_tryout = mysqli_query($koneksi, "SELECT COUNT(*) as total FROM percobaan_tryout WHERE status_pengerjaan='SELESAI'");
-    $data_tryout = mysqli_fetch_assoc($query_tryout);
-    $total_ujian_selesai = $data_tryout['total'];
-
+    $stats_ujian = mysqli_fetch_assoc(mysqli_query($koneksi, "SELECT COUNT(*) as total FROM percobaan_tryout WHERE status_pengerjaan='SELESAI'"));
+    $total_ujian_selesai = $stats_ujian['total'];
 } else {
-    // LOGIKA PESERTA (Statistik Pribadi)
+    // Statistik Peserta
     $query_history = mysqli_query($koneksi, "SELECT COUNT(*) as total_tryout, SUM(skor_total) as total_skor FROM percobaan_tryout WHERE id_user = '$id_user' AND status_pengerjaan='SELESAI'");
     $stats = mysqli_fetch_assoc($query_history);
     
-    $total_ujian_selesai = $stats['total_tryout']; // Variabel disamakan namanya biar gampang di HTML
+    $total_ujian_selesai = $stats['total_tryout']; 
     $rata_rata = ($stats['total_tryout'] > 0) ? round($stats['total_skor'] / $stats['total_tryout'], 1) : 0;
 }
 ?>
@@ -48,9 +41,10 @@ if ($role == 'admin') {
     <title>Dashboard - Sistem Tryout</title>
     <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
     <style>
-        .hero-section { background: linear-gradient(135deg, #0d6efd 0%, #0099ff 100%); color: white; border-radius: 15px; }
         .stat-card { transition: transform 0.2s; border: none; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .stat-card:hover { transform: translateY(-5px); }
+        .hover-scale { transition: transform 0.2s; }
+        .hover-scale:hover { transform: scale(1.05); }
     </style>
 </head>
 <body class="bg-light">
@@ -70,10 +64,12 @@ if ($role == 'admin') {
                 <li class="nav-item"><a class="nav-link" href="riwayat.php">Riwayat</a></li>
             <?php endif; ?>
 
-           <?php if($role == 'admin'): ?>
-            <li class="nav-item"><a class="nav-link" href="admin_paket.php">Kelola Paket</a></li>
-            <li class="nav-item"><a class="nav-link bg-warning text-dark rounded px-3 mx-2 fw-bold" href="data_user.php">Kelola User</a></li>
-             <?php endif; ?>
+            <?php if($role == 'admin'): ?>
+                <li class="nav-item"><a class="nav-link" href="admin_paket.php">Kelola Paket</a></li>
+                <li class="nav-item"><a class="nav-link" href="admin_materi.php">Materi Belajar</a></li>
+                <li class="nav-item"><a class="nav-link" href="laporan.php">Laporan</a></li>
+                <li class="nav-item"><a class="nav-link bg-warning text-dark rounded px-3 mx-2 fw-bold" href="data_user.php">Kelola User</a></li>
+            <?php endif; ?>
 
             <li class="nav-item dropdown ms-2">
                 <a class="nav-link dropdown-toggle text-white fw-bold" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
@@ -89,22 +85,74 @@ if ($role == 'admin') {
     </nav>
 
     <div class="container mt-4">
-        <div class="p-5 mb-4 hero-section">
-            <div class="container-fluid py-2">
+        
+        <div class="p-5 mb-5 rounded-3 shadow-lg text-white" 
+             style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); position: relative; overflow: hidden;">
+            
+            <div style="position: absolute; top: -50px; right: -50px; width: 200px; height: 200px; background: rgba(255,255,255,0.1); border-radius: 50%;"></div>
+            <div style="position: absolute; bottom: -50px; left: -20px; width: 150px; height: 150px; background: rgba(255,255,255,0.05); border-radius: 50%;"></div>
+
+            <div class="container-fluid py-2 position-relative">
                 <?php if($role == 'admin'): ?>
-                    <h1 class="display-5 fw-bold">Selamat Datang, Admin!</h1>
-                    <p class="col-md-8 fs-4">Pantau aktivitas peserta dan kelola materi ujian dari dashboard ini.</p>
-                    <a class="btn btn-light btn-lg fw-bold text-primary" href="data_user.php">Kelola Data User</a>
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h1 class="display-4 fw-bold mb-3">Selamat Datang, Admin! 👋</h1>
+                            <p class="fs-5 text-white-50 mb-4">
+                                Pantau aktivitas peserta, kelola bank soal, dan distribusikan materi belajar.
+                            </p>
+                            
+                            <div class="d-flex flex-wrap">
+                                
+                                <a href="data_user.php" class="btn btn-light btn-lg px-4 py-3 fw-bold shadow-sm d-flex align-items-center mb-3" 
+                                   style="margin-right: 15px;">
+                                    <span class="fs-4 me-2">👥</span> 
+                                    <div class="text-start">
+                                        <div class="small text-muted" style="font-size: 0.7rem; line-height: 1;">KELOLA</div>
+                                        Data User
+                                    </div>
+                                </a>
+
+                                <a href="admin_materi.php" class="btn btn-light btn-lg px-4 py-3 fw-bold shadow-sm d-flex align-items-center mb-3" 
+                                   style="margin-right: 15px;">
+                                    <span class="fs-4 me-2">📚</span>
+                                    <div class="text-start">
+                                        <div class="small text-muted" style="font-size: 0.7rem; line-height: 1;">UPLOAD</div>
+                                        Materi
+                                    </div>
+                                </a>
+
+                                <a href="admin_paket.php" class="btn btn-warning btn-lg px-4 py-3 fw-bold shadow-sm d-flex align-items-center text-dark mb-3">
+                                    <span class="fs-4 me-2">📦</span>
+                                    <div class="text-start">
+                                        <div class="small" style="font-size: 0.7rem; line-height: 1; opacity: 0.7;">MANAJEMEN</div>
+                                        Paket Soal
+                                    </div>
+                                </a>
+
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4 d-none d-md-block text-center opacity-75">
+                            <h1 style="font-size: 8rem;">⚙️</h1>
+                        </div>
+                    </div>
+
                 <?php else: ?>
-                    <h1 class="display-5 fw-bold">Siap Mengejar Mimpi?</h1>
-                    <p class="col-md-8 fs-4">Latihan soal UTBK & CPNS terbaik ada di sini. Tingkatkan skormu sekarang juga.</p>
-                    <a class="btn btn-light btn-lg fw-bold text-primary" href="daftar_paket.php">Mulai Tryout Baru</a>
+                    <div class="text-center">
+                        <h1 class="display-4 fw-bold">🚀 Siap Mengejar Mimpi?</h1>
+                        <p class="col-md-8 fs-4 mx-auto text-white-50 mb-4">
+                            Latihan soal UTBK & CPNS terbaik ada di sini. Asah kemampuanmu sekarang.
+                        </p>
+                        <a class="btn btn-warning btn-lg px-5 py-3 fw-bold shadow hover-scale text-dark" href="daftar_paket.php">
+                            🔥 Mulai Tryout Sekarang
+                        </a>
+                    </div>
                 <?php endif; ?>
             </div>
         </div>
 
         <h4 class="mb-3 fw-bold text-secondary">
-            <?= ($role == 'admin') ? 'Ringkasan Sistem' : 'Statistik Kamu' ?>
+            <?= ($role == 'admin') ? '📊 Ringkasan Sistem' : '📊 Statistik Kamu' ?>
         </h4>
         
         <div class="row mb-5">
@@ -112,7 +160,7 @@ if ($role == 'admin') {
                 <div class="col-md-4">
                     <div class="card stat-card bg-white p-3">
                         <div class="card-body">
-                            <h6 class="text-muted">Total Peserta</h6>
+                            <h6 class="text-muted text-uppercase small fw-bold">Total Peserta</h6>
                             <h2 class="fw-bold text-primary"><?= $total_peserta ?> <span class="fs-6 text-muted">Orang</span></h2>
                         </div>
                     </div>
@@ -120,7 +168,7 @@ if ($role == 'admin') {
                 <div class="col-md-4">
                     <div class="card stat-card bg-white p-3">
                         <div class="card-body">
-                            <h6 class="text-muted">Total Paket Soal</h6>
+                            <h6 class="text-muted text-uppercase small fw-bold">Total Paket Soal</h6>
                             <h2 class="fw-bold text-success"><?= $total_paket ?> <span class="fs-6 text-muted">Paket</span></h2>
                         </div>
                     </div>
@@ -128,7 +176,7 @@ if ($role == 'admin') {
                 <div class="col-md-4">
                     <div class="card stat-card bg-white p-3">
                         <div class="card-body">
-                            <h6 class="text-muted">Total Ujian Selesai</h6>
+                            <h6 class="text-muted text-uppercase small fw-bold">Ujian Selesai</h6>
                             <h2 class="fw-bold text-warning"><?= $total_ujian_selesai ?> <span class="fs-6 text-muted">Kali</span></h2>
                         </div>
                     </div>
@@ -138,7 +186,7 @@ if ($role == 'admin') {
                 <div class="col-md-4">
                     <div class="card stat-card bg-white p-3">
                         <div class="card-body">
-                            <h6 class="text-muted">Total Tryout Selesai</h6>
+                            <h6 class="text-muted text-uppercase small fw-bold">Total Tryout Selesai</h6>
                             <h2 class="fw-bold text-primary"><?= $total_ujian_selesai ?> <span class="fs-6 text-muted">Kali</span></h2>
                         </div>
                     </div>
@@ -146,7 +194,7 @@ if ($role == 'admin') {
                 <div class="col-md-4">
                     <div class="card stat-card bg-white p-3">
                         <div class="card-body">
-                            <h6 class="text-muted">Rata-rata Skor</h6>
+                            <h6 class="text-muted text-uppercase small fw-bold">Rata-rata Skor</h6>
                             <h2 class="fw-bold text-success"><?= $rata_rata ?> <span class="fs-6 text-muted">Poin</span></h2>
                         </div>
                     </div>
@@ -154,8 +202,8 @@ if ($role == 'admin') {
                 <div class="col-md-4">
                     <div class="card stat-card bg-white p-3">
                         <div class="card-body">
-                            <h6 class="text-muted">Status Akun</h6>
-                            <h2 class="fw-bold text-warning">Peserta</h2>
+                            <h6 class="text-muted text-uppercase small fw-bold">Status Akun</h6>
+                            <h2 class="fw-bold text-info">Peserta</h2>
                         </div>
                     </div>
                 </div>
@@ -163,11 +211,11 @@ if ($role == 'admin') {
         </div>
 
         <h4 class="mb-3 fw-bold text-secondary">
-            <?= ($role == 'admin') ? 'Aktivitas User Terbaru' : 'Riwayat Terakhir Kamu' ?>
+            <?= ($role == 'admin') ? '⏳ Aktivitas User Terbaru' : '📜 Riwayat Terakhir Kamu' ?>
         </h4>
-        <div class="card border-0 shadow-sm">
+        <div class="card border-0 shadow-sm mb-5">
             <div class="card-body p-0">
-                <table class="table table-hover mb-0">
+                <table class="table table-hover mb-0 align-middle">
                     <thead class="table-light">
                         <tr>
                             <th>Tanggal</th>
@@ -180,7 +228,6 @@ if ($role == 'admin') {
                     <tbody>
                         <?php
                         if ($role == 'admin') {
-                            // Query Admin: Tampilkan aktivitas dari SEMUA user, join tabel user untuk ambil nama
                             $query_aktivitas = mysqli_query($koneksi, "
                                 SELECT pt.waktu_mulai, pt.skor_total, pt.status_pengerjaan, 
                                        p.nama_paket, u.nama_lengkap 
@@ -190,7 +237,6 @@ if ($role == 'admin') {
                                 ORDER BY pt.waktu_mulai DESC LIMIT 5
                             ");
                         } else {
-                            // Query Peserta: Hanya aktivitas sendiri
                             $query_aktivitas = mysqli_query($koneksi, "
                                 SELECT pt.waktu_mulai, pt.skor_total, pt.status_pengerjaan, p.nama_paket 
                                 FROM percobaan_tryout pt 
@@ -202,25 +248,24 @@ if ($role == 'admin') {
 
                         if(mysqli_num_rows($query_aktivitas) > 0){
                             while($row = mysqli_fetch_assoc($query_aktivitas)){
-                                $badge = ($row['status_pengerjaan'] == 'SELESAI') ? 'bg-success' : 'bg-warning';
+                                $badge = ($row['status_pengerjaan'] == 'SELESAI') ? 'bg-success' : 'bg-warning text-dark';
                                 $tanggal = date('d M Y, H:i', strtotime($row['waktu_mulai']));
                                 
                                 echo "<tr>
-                                    <td>{$tanggal}</td>";
+                                    <td class='text-muted'>{$tanggal}</td>";
                                 
-                                // Jika admin, tampilkan kolom nama peserta
                                 if($role == 'admin') {
-                                    echo "<td>".htmlspecialchars($row['nama_lengkap'])."</td>";
+                                    echo "<td class='fw-bold'>".htmlspecialchars($row['nama_lengkap'])."</td>";
                                 }
 
                                 echo "<td>{$row['nama_paket']}</td>
-                                    <td><span class='badge $badge'>{$row['status_pengerjaan']}</span></td>
-                                    <td class='fw-bold'>{$row['skor_total']}</td>
+                                    <td><span class='badge $badge rounded-pill'>{$row['status_pengerjaan']}</span></td>
+                                    <td class='fw-bold text-primary'>{$row['skor_total']}</td>
                                 </tr>";
                             }
                         } else {
                             $cols = ($role == 'admin') ? 5 : 4;
-                            echo "<tr><td colspan='$cols' class='text-center py-3'>Belum ada aktivitas.</td></tr>";
+                            echo "<tr><td colspan='$cols' class='text-center py-4 text-muted'>Belum ada aktivitas ujian yang terekam.</td></tr>";
                         }
                         ?>
                     </tbody>
