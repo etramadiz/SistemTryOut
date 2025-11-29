@@ -2,8 +2,9 @@
 session_start();
 include 'koneksi.php'; 
 
+// Cek apakah user sudah login
 if (!isset($_SESSION['status']) || $_SESSION['status'] != "login") {
-    header("location:login.php");
+    header("location:login.php?pesan=belum_login");
     die();
 }
 
