@@ -1,3 +1,5 @@
+<<<<<<< HEAD
+=======
 <?php 
 session_start();
 include 'koneksi.php';
@@ -160,3 +162,4 @@ $gratis = ($data['harga'] == 0);
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
+>>>>>>> 0b68867373fe0d10e213f7334de3ca0ee8096945

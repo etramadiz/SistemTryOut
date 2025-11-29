@@ -1,3 +1,5 @@
+<<<<<<< HEAD
+=======
 <?php
 session_start();
 include 'koneksi.php';
@@ -154,3 +156,4 @@ $q_soal = mysqli_query($koneksi, "SELECT s.* FROM paket_soal ps JOIN soal s ON p
     <script src="bootstrap/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
+>>>>>>> 0b68867373fe0d10e213f7334de3ca0ee8096945

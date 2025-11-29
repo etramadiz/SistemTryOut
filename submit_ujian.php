@@ -1,3 +1,5 @@
+<<<<<<< HEAD
+=======
 <?php
 session_start();
 include 'koneksi.php';
@@ -59,3 +61,4 @@ if($update) {
     echo "Gagal menyimpan ujian: " . mysqli_error($koneksi);
 }
 ?>
+>>>>>>> 0b68867373fe0d10e213f7334de3ca0ee8096945
