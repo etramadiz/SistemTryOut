@@ -1,17 +1,4 @@
-<?php 
-session_start();
-include 'koneksi.php'; 
-
-// Cek apakah user sudah login
-if (!isset($_SESSION['status']) || $_SESSION['status'] != "login") {
-    header("location:login.php?pesan=belum_login");
-    die();
-}
-
-$nama_user = $_SESSION['nama'];
-$role = $_SESSION['role'];
-?>
-
+<?php include 'koneksi.php'; ?>
 <!DOCTYPE html>
 <html lang="id">
 <head>

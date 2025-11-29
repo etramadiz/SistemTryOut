@@ -62,6 +62,7 @@ if ($role == 'admin') {
 </head>
 <body class="bg-light">
 
+    <!-- NAVBAR -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top shadow-sm">
       <div class="container">
         <a class="navbar-brand fw-bold" href="index.php">🎓 TryoutOnline</a>
