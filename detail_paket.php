@@ -1,6 +1,7 @@
 <?php 
 session_start();
 include 'koneksi.php';
+session_start();
 
 // Cek Login
 if (!isset($_SESSION['status']) || $_SESSION['status'] != "login") {
