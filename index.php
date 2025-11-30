@@ -46,6 +46,7 @@ if ($role == 'admin') {
     <title>Dashboard - Sistem Tryout</title>
     
     <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     
     <style>
@@ -72,7 +73,7 @@ if ($role == 'admin') {
         
         <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="navbar-nav ms-auto">
-            <li class="nav-item"><a class="nav-link active" href="index.php">Dashboard</a></li>
+            <li class="nav-item"><a class="nav-link active fw-bold" href="index.php">Dashboard</a></li>
             
             <?php if($role == 'peserta'): ?>
                 <li class="nav-item"><a class="nav-link" href="daftar_paket.php">Daftar Tryout</a></li>
@@ -84,7 +85,7 @@ if ($role == 'admin') {
                 <li class="nav-item"><a class="nav-link" href="admin_paket.php">Kelola Paket</a></li>
                 <li class="nav-item"><a class="nav-link" href="admin_materi.php">Materi Belajar</a></li>
                 <li class="nav-item"><a class="nav-link" href="laporan.php">Laporan</a></li>
-                <li class="nav-item"><a class="nav-link bg-warning text-dark rounded px-3 mx-2 fw-bold" href="data_user.php">Kelola User</a></li>
+                <li class="nav-item"><a class="nav-link" href="data_user.php">Kelola User</a></li>
             <?php endif; ?>
 
             <li class="nav-item dropdown ms-2">

@@ -29,6 +29,7 @@ $id_paket_pilih = isset($_GET['paket']) ? $_GET['paket'] : '';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Laporan Hasil Ujian</title>
     <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 </head>
 <body class="bg-light">
@@ -52,7 +53,7 @@ $id_paket_pilih = isset($_GET['paket']) ? $_GET['paket'] : '';
                 <li class="nav-item"><a class="nav-link" href="admin_paket.php">Kelola Paket</a></li>
                 <li class="nav-item"><a class="nav-link" href="admin_materi.php">Materi Belajar</a></li>
                 <li class="nav-item"><a class="nav-link active fw-bold" href="laporan.php">Laporan</a></li>
-                <li class="nav-item"><a class="nav-link bg-warning text-dark rounded px-3 mx-2 fw-bold" href="data_user.php">Kelola User</a></li>
+                <li class="nav-item"><a class="nav-link" href="data_user.php">Kelola User</a></li>
             <?php endif; ?>
 
             <li class="nav-item dropdown ms-2">
@@ -164,5 +165,6 @@ $id_paket_pilih = isset($_GET['paket']) ? $_GET['paket'] : '';
     </div>
 
     <script src="bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
