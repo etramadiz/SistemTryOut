@@ -68,14 +68,8 @@ if (isset($_POST['login'])) {
             <button type="submit" name="login" class="btn btn-primary w-100 fw-bold">Masuk Sekarang</button>
         </form>
         
-        <div class="text-center mt-3">
-            <small class="text-muted">Belum punya akun? Hubungi Admin.</small>
-        </div>
-        
-        <div class="alert alert-info mt-3 small">
-            <strong>Info Login (Sesuai DB):</strong><br>
-            Email: budi@gmail.com<br>
-            Pass: hash_rahasia_budi
+        <div class="text-center mt-3"> 
+            <small class="text-muted">Belum punya akun? <a href="register.php" class="text-decoration-none fw-bold">Daftar disini</a></small>
         </div>
     </div>
 </body>
