@@ -2,135 +2,138 @@
 session_start();
 include 'koneksi.php';
 
-if (!isset($_SESSION['status']) || $_SESSION['status'] != "login") {
-    header("location:login.php");
-    die();
+// 1. Cek Login
+if (!isset($_SESSION['status'])) { header("location:login.php"); exit; }
+
+$id_paket = $_GET['id'];
+$id_user = $_SESSION['id_user'];
+$role = $_SESSION['role']; // Ambil Role User
+
+// 2. [KEAMANAN] Cek Hak Akses
+// Logika: User boleh masuk JIKA (Sudah Selesai Ujian) ATAU (Dia adalah Admin)
+$cek_hak_akses = mysqli_query($koneksi, "
+    SELECT * FROM percobaan_tryout 
+    WHERE id_user='$id_user' 
+    AND id_paket='$id_paket' 
+    AND status_pengerjaan='SELESAI'
+");
+
+// Jika TIDAK ditemukan data selesai DAN bukan Admin, maka tolak.
+if (mysqli_num_rows($cek_hak_akses) == 0 && $role != 'admin') {
+    echo "<script>
+            alert('Akses Ditolak! Anda harus menyelesaikan ujian ini terlebih dahulu untuk melihat pembahasan.');
+            window.location='detail_paket.php?id=$id_paket';
+          </script>";
+    exit; // Stop script
 }
 
-$id_user = $_SESSION['id_user'];
-$nama_user = $_SESSION['nama'];
-$role = $_SESSION['role'];
-$id_paket = $_GET['id'];
-
-// --- LOGIKA KIRIM KOMENTAR ---
+// 3. Proses Kirim Komentar
 if(isset($_POST['kirim_komentar'])){
     $id_soal = $_POST['id_soal'];
     $isi = mysqli_real_escape_string($koneksi, $_POST['isi']);
-    mysqli_query($koneksi, "INSERT INTO diskusi_soal (id_user, id_soal, isi_komentar) VALUES ('$id_user', '$id_soal', '$isi')");
-}
-
-// --- LOGIKA HAPUS KOMENTAR ---
-if(isset($_GET['hapus_komentar'])){
-    $id_kom = $_GET['hapus_komentar'];
-    // Cek apakah komentar ini milik user yang sedang login (Security Check)
-    $cek_milik = mysqli_query($koneksi, "SELECT * FROM diskusi_soal WHERE id_komentar='$id_kom' AND id_user='$id_user'");
     
-    if(mysqli_num_rows($cek_milik) > 0){
-        mysqli_query($koneksi, "DELETE FROM diskusi_soal WHERE id_komentar='$id_kom'");
-        echo "<script>alert('Komentar dihapus!'); window.location='diskusi.php?id=$id_paket';</script>";
-    }
+    // Insert komentar
+    mysqli_query($koneksi, "INSERT INTO diskusi_soal (id_user, id_soal, isi_komentar) VALUES ('$id_user', '$id_soal', '$isi')");
+    
+    // Refresh halaman biar komentar muncul
+    header("Location: diskusi.php?id=$id_paket");
 }
 
-// Ambil Soal-soal
+// 4. Ambil Data Soal & Info Paket
 $soal_list = mysqli_query($koneksi, "SELECT s.* FROM paket_soal ps JOIN soal s ON ps.id_soal = s.id_soal WHERE ps.id_paket='$id_paket'");
-$info_paket = mysqli_fetch_assoc(mysqli_query($koneksi, "SELECT nama_paket FROM paket_tryout WHERE id_paket='$id_paket'"));
+$paket_info = mysqli_fetch_assoc(mysqli_query($koneksi, "SELECT nama_paket FROM paket_tryout WHERE id_paket='$id_paket'"));
 ?>
 
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Diskusi - <?= $info_paket['nama_paket'] ?></title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <title>Diskusi - <?= $paket_info['nama_paket'] ?></title>
+    <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+    <style>
+        .komentar-box { background-color: #f8f9fa; border-radius: 10px; padding: 15px; }
+        .user-name { font-weight: bold; color: #0d6efd; }
+        .time-stamp { font-size: 0.8rem; color: #6c757d; }
+    </style>
 </head>
 <body class="bg-light">
-
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top shadow-sm">
-      <div class="container">
-        <a class="navbar-brand fw-bold" href="index.php">🎓 TryoutOnline</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-          <ul class="navbar-nav ms-auto">
-            <li class="nav-item"><a class="nav-link" href="index.php">Dashboard</a></li>
-            <?php if($role == 'peserta'): ?>
-                <li class="nav-item"><a class="nav-link" href="daftar_paket.php">Daftar Tryout</a></li>
-                <li class="nav-item"><a class="nav-link" href="riwayat.php">Riwayat</a></li>
-            <?php endif; ?>
-            <li class="nav-item dropdown ms-2">
-                <a class="nav-link dropdown-toggle text-white fw-bold" href="#" data-bs-toggle="dropdown">Hi, <?= explode(' ', $nama_user)[0] ?></a>
-                <ul class="dropdown-menu dropdown-menu-end">
-                    <li><a class="dropdown-item" href="profil.php">👤 Profil Saya</a></li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item text-danger" href="logout.php">🚪 Logout</a></li>
-                </ul>
-            </li>
-          </ul>
+    
+    <nav class="navbar navbar-dark bg-primary shadow-sm mb-4 sticky-top">
+        <div class="container">
+            <span class="navbar-brand fw-bold fs-5">💬 Diskusi: <?= $paket_info['nama_paket'] ?></span>
+            <a href="detail_paket.php?id=<?= $id_paket ?>" class="btn btn-sm btn-light text-primary fw-bold">Kembali</a>
         </div>
-      </div>
     </nav>
 
-    <div class="container mt-4 mb-5">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h3 class="fw-bold text-primary mb-0">💬 Diskusi Soal</h3>
-                <small class="text-muted"><?= $info_paket['nama_paket'] ?></small>
-            </div>
-            <a href="riwayat.php" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left"></i> Kembali</a>
-        </div>
-
+    <div class="container pb-5">
         <?php $no=1; while($s = mysqli_fetch_assoc($soal_list)): ?>
             <div class="card mb-4 shadow-sm border-0">
-                <div class="card-header bg-white fw-bold border-bottom">
-                    Soal No. <?= $no++ ?>
+                <div class="card-header bg-white fw-bold d-flex justify-content-between align-items-center py-3">
+                    <span>Soal No. <?= $no++ ?></span>
+                    <span class="badge bg-success rounded-pill px-3">Kunci: <?= $s['kunci_jawaban'] ?></span>
                 </div>
                 <div class="card-body">
                     <p class="fs-5 mb-3"><?= $s['pertanyaan'] ?></p>
                     
-                    <hr class="my-4">
-                    <h6 class="fw-bold mb-3"><i class="bi bi-chat-text"></i> Komentar</h6>
+                    <ul class="list-group list-group-flush mb-3 border rounded">
+                        <li class="list-group-item <?php if($s['kunci_jawaban']=='A') echo 'bg-success text-white'; ?>">A. <?= $s['opsi_a'] ?></li>
+                        <li class="list-group-item <?php if($s['kunci_jawaban']=='B') echo 'bg-success text-white'; ?>">B. <?= $s['opsi_b'] ?></li>
+                        <li class="list-group-item <?php if($s['kunci_jawaban']=='C') echo 'bg-success text-white'; ?>">C. <?= $s['opsi_c'] ?></li>
+                        <li class="list-group-item <?php if($s['kunci_jawaban']=='D') echo 'bg-success text-white'; ?>">D. <?= $s['opsi_d'] ?></li>
+                        <?php if(!empty($s['opsi_e'])): ?>
+                            <li class="list-group-item <?php if($s['kunci_jawaban']=='E') echo 'bg-success text-white'; ?>">E. <?= $s['opsi_e'] ?></li>
+                        <?php endif; ?>
+                    </ul>
 
-                    <div class="list-group mb-3">
+                    <div class="alert alert-info border-0 d-flex align-items-start">
+                        <span class="fs-4 me-2">💡</span>
+                        <div>
+                            <strong>Pembahasan:</strong><br>
+                            <?= $s['teks_pembahasan'] ?? 'Belum ada pembahasan untuk soal ini.' ?>
+                        </div>
+                    </div>
+                    
+                    <hr class="my-4">
+                    
+                    <h6 class="fw-bold text-secondary mb-3">Diskusi Peserta:</h6>
+                    <div class="komentar-box mb-3">
                         <?php
-                        $komen = mysqli_query($koneksi, "SELECT d.*, u.nama_lengkap FROM diskusi_soal d JOIN user u ON d.id_user=u.id_user WHERE id_soal='".$s['id_soal']."' ORDER BY d.tanggal_posting ASC");
+                        $komen = mysqli_query($koneksi, "
+                            SELECT d.*, u.nama_lengkap, u.role 
+                            FROM diskusi_soal d 
+                            JOIN user u ON d.id_user=u.id_user 
+                            WHERE id_soal='".$s['id_soal']."'
+                            ORDER BY tanggal_posting ASC
+                        ");
                         
                         if(mysqli_num_rows($komen) > 0){
                             while($k = mysqli_fetch_assoc($komen)){
-                                $tgl = date('d M, H:i', strtotime($k['tanggal_posting']));
-                                // Cek apakah ini komentar user yang sedang login?
-                                $is_me = ($k['id_user'] == $id_user);
-                                $bg_class = $is_me ? "bg-primary bg-opacity-10 border-primary" : "bg-light";
-                        ?>
-                            <div class="list-group-item <?= $bg_class ?> border-0 mb-2 rounded-3 p-3">
-                                <div class="d-flex w-100 justify-content-between align-items-center">
-                                    <h6 class="mb-1 fw-bold <?= $is_me ? 'text-primary' : 'text-dark' ?>">
-                                        <?= $k['nama_lengkap'] ?> <?= $is_me ? '(Saya)' : '' ?>
-                                    </h6>
-                                    <small class="text-muted" style="font-size: 0.75rem;"><?= $tgl ?></small>
-                                </div>
-                                <p class="mb-1 mt-1 text-secondary"><?= $k['isi_komentar'] ?></p>
+                                $badge_role = ($k['role'] == 'admin') ? '<span class="badge bg-danger ms-1" style="font-size:0.6rem">ADMIN</span>' : '';
+                                $hapus_btn = ($k['id_user'] == $id_user || $role == 'admin') ? "<a href='hapus_komentar.php?id=".$k['id_komentar']."&paket=$id_paket' class='text-danger ms-2 text-decoration-none' style='font-size:0.8rem' onclick=\"return confirm('Hapus komentar?')\">[Hapus]</a>" : "";
                                 
-                                <?php if($is_me): ?>
-                                    <div class="mt-2 text-end">
-                                        <a href="edit_komentar.php?id=<?= $k['id_komentar'] ?>&id_paket=<?= $id_paket ?>" class="text-decoration-none small text-warning me-2 fw-bold">Edit</a>
-                                        <a href="diskusi.php?id=<?= $id_paket ?>&hapus_komentar=<?= $k['id_komentar'] ?>" class="text-decoration-none small text-danger fw-bold" onclick="return confirm('Hapus komentar ini?')">Hapus</a>
-                                    </div>
-                                <?php endif; ?>
-                            </div>
-                        <?php 
+                                echo "<div class='mb-3 border-bottom pb-2'>
+                                        <div class='d-flex justify-content-between'>
+                                            <div>
+                                                <span class='user-name'>".$k['nama_lengkap']."</span> $badge_role
+                                                <span class='time-stamp ms-2'>".date('d/m H:i', strtotime($k['tanggal_posting']))."</span>
+                                            </div>
+                                            <div>$hapus_btn</div>
+                                        </div>
+                                        <div class='mt-1 text-dark'>".nl2br(htmlspecialchars($k['isi_komentar']))."</div>
+                                      </div>";
                             }
                         } else {
-                            echo "<div class='text-muted small text-center py-3'>Belum ada diskusi.</div>";
+                            echo "<div class='text-center text-muted py-2'>Belum ada pertanyaan/diskusi. Jadilah yang pertama bertanya!</div>";
                         }
                         ?>
                     </div>
 
-                    <form method="POST" class="d-flex gap-2">
+                    <form method="POST">
                         <input type="hidden" name="id_soal" value="<?= $s['id_soal'] ?>">
-                        <input type="text" name="isi" class="form-control rounded-pill px-3" placeholder="Tulis pertanyaan atau balasan..." required>
-                        <button class="btn btn-primary rounded-pill px-4" type="submit" name="kirim_komentar"><i class="bi bi-send-fill"></i></button>
+                        <div class="input-group">
+                            <input type="text" name="isi" class="form-control" placeholder="Tulis pertanyaan atau diskusi di sini..." required autocomplete="off">
+                            <button class="btn btn-primary fw-bold" type="submit" name="kirim_komentar">Kirim</button>
+                        </div>
                     </form>
                 </div>
             </div>

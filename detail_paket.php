@@ -25,17 +25,28 @@ $data = mysqli_fetch_assoc($query_paket);
 // Hitung Jumlah Soal
 $jml_soal = mysqli_fetch_assoc(mysqli_query($koneksi, "SELECT COUNT(*) as jumlah FROM paket_soal WHERE id_paket = '$id_paket'"));
 
-// --- 3. LOGIKA CEK AKSES ---
-// Cek apakah user sudah beli? (Jika ada tabel transaksi)
+// --- 3. LOGIKA CEK AKSES BELI ---
+// Cek apakah user sudah beli?
 $cek_beli = mysqli_query($koneksi, "SELECT * FROM transaksi WHERE id_user='$id_user' AND id_paket='$id_paket' AND status_transaksi='SUCCESS'");
 $sudah_beli = mysqli_num_rows($cek_beli) > 0;
 
 // Paket Gratis?
 $gratis = ($data['harga'] == 0);
 
-// Admin boleh akses semua paket
+// --- 4. [BARU] LOGIKA CEK STATUS PENGERJAAN ---
+// Cek apakah user sudah SELESAI mengerjakan ujian ini?
+$cek_selesai = mysqli_query($koneksi, "
+    SELECT * FROM percobaan_tryout 
+    WHERE id_user='$id_user' 
+    AND id_paket='$id_paket' 
+    AND status_pengerjaan='SELESAI'
+");
+$sudah_selesai_ujian = mysqli_num_rows($cek_selesai) > 0;
+
+// Admin boleh akses semua (Beli & Diskusi)
 if ($role == 'admin') {
     $sudah_beli = true; 
+    $sudah_selesai_ujian = true; 
 }
 ?>
 
@@ -154,9 +165,18 @@ if ($role == 'admin') {
                                 </a>
                             <?php endif; ?>
                             
-                            <a href="diskusi.php?id=<?= $data['id_paket'] ?>" class="btn btn-outline-secondary mt-2 border-0">
-                                <i class="bi bi-chat-dots me-1"></i> Lihat Diskusi Soal
-                            </a>
+                            <div class="mt-3">
+                                <?php if ($sudah_selesai_ujian): ?>
+                                    <a href="diskusi.php?id=<?= $data['id_paket'] ?>" class="btn btn-outline-primary border-0 w-100">
+                                        <i class="bi bi-chat-dots-fill me-1"></i> Lihat Diskusi & Pembahasan
+                                    </a>
+                                <?php else: ?>
+                                    <button class="btn btn-outline-secondary border-0 w-100" disabled title="Selesaikan ujian terlebih dahulu untuk melihat pembahasan">
+                                        <i class="bi bi-lock-fill me-1"></i> Diskusi Terkunci (Kerjakan Ujian Dulu)
+                                    </button>
+                                <?php endif; ?>
+                            </div>
+
                         </div>
 
                     </div>
