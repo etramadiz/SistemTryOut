@@ -76,6 +76,7 @@ if ($role == 'admin') {
             
             <?php if($role == 'peserta'): ?>
                 <li class="nav-item"><a class="nav-link" href="daftar_paket.php">Daftar Tryout</a></li>
+                <li class="nav-item"><a class="nav-link" href="belajar.php">Materi Belajar</a></li>
                 <li class="nav-item"><a class="nav-link" href="riwayat.php">Riwayat</a></li>
             <?php endif; ?>
 
