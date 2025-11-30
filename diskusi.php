@@ -40,7 +40,9 @@ if(isset($_POST['kirim_komentar'])){
 }
 
 // 4. Ambil Data Soal & Info Paket
-$soal_list = mysqli_query($koneksi, "SELECT s.* FROM paket_soal ps JOIN soal s ON ps.id_soal = s.id_soal WHERE ps.id_paket='$id_paket'");
+// [REVISI: Tidak perlu JOIN ke tabel 'soal' lagi karena tabelnya sudah dihapus]
+$soal_list = mysqli_query($koneksi, "SELECT * FROM paket_soal WHERE id_paket='$id_paket' ORDER BY id_soal ASC");
+
 $paket_info = mysqli_fetch_assoc(mysqli_query($koneksi, "SELECT nama_paket FROM paket_tryout WHERE id_paket='$id_paket'"));
 ?>
 
@@ -66,7 +68,12 @@ $paket_info = mysqli_fetch_assoc(mysqli_query($koneksi, "SELECT nama_paket FROM 
     </nav>
 
     <div class="container pb-5">
-        <?php $no=1; while($s = mysqli_fetch_assoc($soal_list)): ?>
+        <?php 
+        $no=1; 
+        while($s = mysqli_fetch_assoc($soal_list)): 
+            // Pastikan kolom gambar ada (handle error jika kolom gambar blm ada di paket_soal)
+            $gambar = isset($s['gambar']) ? $s['gambar'] : null;
+        ?>
             <div class="card mb-4 shadow-sm border-0">
                 <div class="card-header bg-white fw-bold d-flex justify-content-between align-items-center py-3">
                     <span>Soal No. <?= $no++ ?></span>
@@ -74,6 +81,10 @@ $paket_info = mysqli_fetch_assoc(mysqli_query($koneksi, "SELECT nama_paket FROM 
                 </div>
                 <div class="card-body">
                     <p class="fs-5 mb-3"><?= $s['pertanyaan'] ?></p>
+                    
+                    <?php if(!empty($gambar)): ?>
+                        <img src="foto_soal/<?= $gambar ?>" class="img-fluid mb-3 rounded" style="max-height: 200px;">
+                    <?php endif; ?>
                     
                     <ul class="list-group list-group-flush mb-3 border rounded">
                         <li class="list-group-item <?php if($s['kunci_jawaban']=='A') echo 'bg-success text-white'; ?>">A. <?= $s['opsi_a'] ?></li>
@@ -89,7 +100,7 @@ $paket_info = mysqli_fetch_assoc(mysqli_query($koneksi, "SELECT nama_paket FROM 
                         <span class="fs-4 me-2">💡</span>
                         <div>
                             <strong>Pembahasan:</strong><br>
-                            <?= $s['teks_pembahasan'] ?? 'Belum ada pembahasan untuk soal ini.' ?>
+                            <?= isset($s['teks_pembahasan']) ? $s['teks_pembahasan'] : 'Belum ada pembahasan untuk soal ini.' ?>
                         </div>
                     </div>
                     
@@ -98,11 +109,14 @@ $paket_info = mysqli_fetch_assoc(mysqli_query($koneksi, "SELECT nama_paket FROM 
                     <h6 class="fw-bold text-secondary mb-3">Diskusi Peserta:</h6>
                     <div class="komentar-box mb-3">
                         <?php
+                        // Ambil ID Soal dari paket_soal
+                        $id_soal_curr = $s['id_soal']; // Sesuaikan nama kolom ID di tabel paket_soal kamu
+                        
                         $komen = mysqli_query($koneksi, "
                             SELECT d.*, u.nama_lengkap, u.role 
                             FROM diskusi_soal d 
                             JOIN user u ON d.id_user=u.id_user 
-                            WHERE id_soal='".$s['id_soal']."'
+                            WHERE id_soal='$id_soal_curr'
                             ORDER BY tanggal_posting ASC
                         ");
                         
