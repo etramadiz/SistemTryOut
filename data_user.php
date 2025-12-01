@@ -14,9 +14,9 @@ $nama_user = $_SESSION['nama'];
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Data Pengguna (User) Sistem Tryout</title>
     
-<link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 </head>
 <body>
 
@@ -32,9 +32,7 @@ $nama_user = $_SESSION['nama'];
             <li class="nav-item"><a class="nav-link" href="admin_paket.php">Kelola Paket</a></li>
             <li class="nav-item"><a class="nav-link" href="admin_materi.php">Materi Belajar</a></li>
             <li class="nav-item"><a class="nav-link" href="laporan.php">Laporan</a></li>
-            <li class="nav-item">
-                <a class="nav-link active fw-bold" aria-current="page" href="data_user.php">Kelola User</a>
-            </li>
+            <li class="nav-item"><a class="nav-link active fw-bold" aria-current="page" href="data_user.php">Kelola User</a></li>
 
             <li class="nav-item dropdown ms-2">
                 <a class="nav-link dropdown-toggle text-white fw-bold" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">

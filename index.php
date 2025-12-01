@@ -73,7 +73,7 @@ if ($role == 'admin') {
         
         <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="navbar-nav ms-auto">
-            <li class="nav-item"><a class="nav-link active fw-bold" href="index.php">Dashboard</a></li>
+            <li class="nav-item"><a class="nav-link active fw-bold" aria-current="page" href="index.php">Dashboard</a></li>
             
             <?php if($role == 'peserta'): ?>
                 <li class="nav-item"><a class="nav-link" href="daftar_paket.php">Daftar Tryout</a></li>
