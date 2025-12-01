@@ -2,13 +2,15 @@
 session_start();
 include 'koneksi.php';
 
-// Cek Login
+// --- 1. CEK LOGIN & AMBIL DATA SESSION (WAJIB ADA) ---
 if (!isset($_SESSION['status']) || $_SESSION['status'] != "login") {
-    header("location:login.php");
+    header("location:login.php?pesan=belum_login");
     die();
 }
 
 $id_user = $_SESSION['id_user'];
+$nama_user = $_SESSION['nama'];
+$role = $_SESSION['role'];
 ?>
 
 <!DOCTYPE html>
@@ -17,6 +19,8 @@ $id_user = $_SESSION['id_user'];
     <meta charset="UTF-8">
     <title>Riwayat Tryout</title>
     <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
 </head>
 <body class="bg-light">
 
@@ -30,8 +34,19 @@ $id_user = $_SESSION['id_user'];
           <ul class="navbar-nav ms-auto">
             <li class="nav-item"><a class="nav-link" href="index.php">Dashboard</a></li>
             <li class="nav-item"><a class="nav-link" href="daftar_paket.php">Daftar Tryout</a></li>
-            <li class="nav-item"><a class="nav-link active" href="riwayat.php">Riwayat</a></li>
-             <li class="nav-item"><a class="nav-link text-warning fw-bold" href="logout.php">Logout</a></li>
+            <li class="nav-item"><a class="nav-link" href="belajar.php">Materi Belajar</a></li>
+            <li class="nav-item"><a class="nav-link active fw-bold" href="riwayat.php">Riwayat</a></li>
+
+            <li class="nav-item dropdown ms-2">
+                <a class="nav-link dropdown-toggle text-white fw-bold" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    Hi, <?= explode(' ', $nama_user)[0] ?>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="profil.php">👤 Profil Saya</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item text-danger" href="logout.php">🚪 Logout</a></li>
+                </ul>
+            </li>
           </ul>
         </div>
       </div>
@@ -81,5 +96,6 @@ $id_user = $_SESSION['id_user'];
         </div>
     </div>
     <script src="bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

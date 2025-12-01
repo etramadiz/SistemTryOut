@@ -46,10 +46,14 @@ $data_user = mysqli_fetch_assoc($query_user);
             
             <?php if($role == 'peserta'): ?>
                 <li class="nav-item"><a class="nav-link" href="daftar_paket.php">Daftar Tryout</a></li>
+                <li class="nav-item"><a class="nav-link" href="belajar.php">Materi Belajar</a></li>
                 <li class="nav-item"><a class="nav-link" href="riwayat.php">Riwayat</a></li>
             <?php endif; ?>
 
             <?php if($role == 'admin'): ?>
+                <li class="nav-item"><a class="nav-link" href="admin_paket.php">Kelola Paket</a></li>
+                <li class="nav-item"><a class="nav-link" href="admin_materi.php">Materi Belajar</a></li>
+                <li class="nav-item"><a class="nav-link" href="laporan.php">Laporan</a></li>
                 <li class="nav-item"><a class="nav-link" href="data_user.php">Kelola User</a></li>
             <?php endif; ?>
 

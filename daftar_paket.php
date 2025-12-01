@@ -38,7 +38,8 @@ $role = $_SESSION['role'];
             <li class="nav-item"><a class="nav-link" href="index.php">Dashboard</a></li>
             
             <?php if($role == 'peserta'): ?>
-                <li class="nav-item"><a class="nav-link active" href="daftar_paket.php">Daftar Tryout</a></li>
+                <li class="nav-item"><a class="nav-link active fw-bold" href="daftar_paket.php">Daftar Tryout</a></li>
+                <li class="nav-item"><a class="nav-link" href="belajar.php">Materi Belajar</a></li>
                 <li class="nav-item"><a class="nav-link" href="riwayat.php">Riwayat</a></li>
             <?php endif; ?>
 
