@@ -42,7 +42,7 @@ $data_user = mysqli_fetch_assoc($query_user);
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="navbar-nav ms-auto">
-            <li class="nav-item"><a class="nav-link" href="index.php">Dashboard</a></li>
+            <li class="nav-item"><a class="nav-link" aria-current="page" href="index.php">Dashboard</a></li>
             
             <?php if($role == 'peserta'): ?>
                 <li class="nav-item"><a class="nav-link" href="daftar_paket.php">Daftar Tryout</a></li>
@@ -50,6 +50,9 @@ $data_user = mysqli_fetch_assoc($query_user);
             <?php endif; ?>
 
             <?php if($role == 'admin'): ?>
+                <li class="nav-item"><a class="nav-link" href="admin_paket.php">Kelola Paket</a></li>
+                <li class="nav-item"><a class="nav-link" href="admin_materi.php">Materi Belajar</a></li>
+                <li class="nav-item"><a class="nav-link" href="laporan.php">Laporan</a></li>
                 <li class="nav-item"><a class="nav-link" href="data_user.php">Kelola User</a></li>
             <?php endif; ?>
 
